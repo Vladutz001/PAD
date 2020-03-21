@@ -54,13 +54,29 @@ void login(){
         }
         sscanf(loginString, "%d;%[^;];%[^;];", &log, user, passw);
         if(log == 0){
-            fprintf(uf, "%s;%s;\n", user, passw);
-            char r[] = "1";
-            if (send(c->conn, r, strlen(r), 0) < 0){
-                printf("Error sending confirmation to client!");
-                exit(-13);
+            int valid = 1;
+            char foundName[100],foundPassw[100];
+            while (fscanf(uf, "%[^;];%[^;];\n", foundName, foundPassw) != EOF){
+                if (strcmp(foundName, user) == 0){
+                    valid = 0;
+                    break;
+                }
             }
-            found = 1;
+            if(valid == 1){
+                fprintf(uf, "%s;%s;\n", user, passw);
+                char r[] = "1";
+                if (send(c->conn, r, strlen(r), 0) < 0){
+                    printf("Error sending confirmation to client!");
+                    exit(-13);
+                }
+                found = 1;
+            }else{
+                char r[] = "0";
+                if(send(c->conn, r, strlen(r), 0) < 0){
+                    printf("Error sending refusal to client!");
+                    exit(-16);
+                }
+            }
         }else{
             char foundName[100],foundPassw[100];
             while (fscanf(uf, "%[^;];%[^;];\n", foundName, foundPassw) != EOF){

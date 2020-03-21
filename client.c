@@ -42,6 +42,8 @@ void login(){
             exit(-6);
         }
         if(atoi(buff) == 1) break;
+        if(n == 0) printf("Numele e luat! Te rugam incearca din nou!\n");
+        else printf("Parola gresita! Te rugam incearca din nou!\n");
     }
     if(n == 0) printf("Inregistrare reusita! Bine ai venit!\n");
     if(n == 1) printf("Autentificare reusita! Bine ai venit!\n");
