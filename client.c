@@ -12,7 +12,7 @@
 #include "netio.h"
 
 #define SERVERADDRESS "127.0.0.1" //change to your PC's address
-#define SERVERPORT 1234
+#define SERVERPORT 5234
 
 pid_t pid;
 int sockfd;
@@ -36,12 +36,15 @@ void login(){
             printf("Can't send information to server!");
             exit(-5);
         }
-        if(recv(sockfd, buff, sizeof(int), 0) < 0){
+        char string[] = "1";
+        if(recv(sockfd, buff, sizeof(string), 0) < 0){
             printf("Can't receive feedback from server!");
             exit(-6);
         }
         if(atoi(buff) == 1) break;
     }
+    if(n == 0) printf("Inregistrare reusita! Bine ai venit!\n");
+    if(n == 1) printf("Autentificare reusita! Bine ai venit!\n");
 }
 
 void f1(int signal){
@@ -136,13 +139,11 @@ void fatherCode(){
 void begin(){
     login();
     pid = fork();
-    printf("pid");
     if (pid < 0){
         printf("Error using fork!");
         exit(-4);
     }
     if (pid == 0){
-        printf("Done");
         childCode();
     }
     else fatherCode();

@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include "netio.h"
 
-#define PORT 1234
+#define PORT 5234
 
 typedef struct ClientInfo{
     int conn;
@@ -25,7 +25,7 @@ char buff[1024],user[100],passw[100];
 
 void connectToClient(){
     char fileDescriptorsString[20];
-    int size = sizeof(remote);
+    socklen_t size = sizeof(remote);
     if((connfd = accept(sockfd, (struct sockaddr *)&remote, &size)) < 0){
         printf("Unable to create connection!");
         exit(-5);
@@ -60,11 +60,13 @@ void login(){
                 printf("Error sending confirmation to client!");
                 exit(-13);
             }
+            found = 1;
         }else{
             char foundName[100],foundPassw[100];
             while (fscanf(uf, "%[^;];%[^;];\n", foundName, foundPassw) != EOF){
                 if (strcmp(foundName, user) == 0 && strcmp(foundPassw, passw) == 0){
-                    if(send(c->conn, "1", strlen("1"), 0) < 0){
+                    char r[] = "1";
+                    if(send(c->conn, r, strlen(r), 0) < 0){
                         printf("Error sending confirmation to client!");
                         exit(-14);
                     }
@@ -73,7 +75,8 @@ void login(){
                 }
             }
             if(found == 0){
-               if(send(c->conn, "0", strlen("0"), 0) < 0){
+               char v[] = "0";
+               if(send(c->conn, v, strlen(v), 0) < 0){
                    printf("Error sending failure to client!");
                    exit(-15);
                }
@@ -106,7 +109,7 @@ void *child(void *arg){
             }
             fileDescriptorsString[length] = '\0';
             number = atoi(fileDescriptorsString);
-            if (write(n, (void *)buff, strlen(buff)) < 0){
+            if (write(number, (void *)buff, strlen(buff)) < 0){
                 printf("Error writing to clients!");
                 exit(-10);
             }
@@ -115,8 +118,7 @@ void *child(void *arg){
 }
 
 int main(){
-    printf("HEllo!");
-    if ((fd = open("sockets.txt", O_RDWR | O_APPEND | O_TRUNC | O_CREAT)) < 0){
+    if ((fd = open("sockets.txt", O_RDWR | O_APPEND | O_TRUNC | O_CREAT,0777)) < 0){
         printf("Error opening socket descriptors files!");
         exit(-8);
     }
